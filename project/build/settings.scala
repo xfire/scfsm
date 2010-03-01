@@ -1,6 +1,6 @@
 import sbt._
 
-class TernaryTreeProject(info: ProjectInfo) extends DefaultProject(info) {
+class FSMProject(info: ProjectInfo) extends DefaultProject(info) {
     // External dependencies
 
   val scalaToolsRepo = "Scala-Tools Maven Repository" at
