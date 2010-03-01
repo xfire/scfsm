@@ -40,12 +40,12 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
 
         var path = ""
 
-        define onEntry A as { path += "eA" }
-        define onExit  A as { path += "xA" }
-        define onEntry B as { path += "eB" }
-        define onExit  B as { path += "xB" }
-        define onEntry C as { path += "eC" }
-        define onExit  C as { path += "xC" }
+        define entry A as { path += "eA" }
+        define exit  A as { path += "xA" }
+        define entry B as { path += "eB" }
+        define exit  B as { path += "xB" }
+        define entry C as { path += "eC" }
+        define exit  C as { path += "xC" }
         define from A as { B }
         define from B as { C }
         define from C as { STOP }
@@ -65,8 +65,8 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
         var x = 0
         var y = 0
 
-        define onEntry A as { x += 1 }
-        define onEntry B as { y += 10 }
+        define entry A as { x += 1 }
+        define entry B as { y += 10 }
 
         define from A as { B }
         define from B as { if(x >= 10) STOP else A }

@@ -22,11 +22,11 @@ abstract class Statemachine {
 
   protected val define: this.type = this
 
-  protected def onEntry(state: Statemachine) = new MappingSetter[Unit] {
+  protected def entry(state: Statemachine) = new MappingSetter[Unit] {
     def as(fn: => Unit) = entryActions += (state -> fn _)
   }
 
-  protected def onExit(state: Statemachine) = new MappingSetter[Unit] {
+  protected def exit(state: Statemachine) = new MappingSetter[Unit] {
     def as(fn: => Unit) = exitActions += (state -> fn _)
   }
 
@@ -76,13 +76,13 @@ object Test {
 
       val A, B, C = State
 
-      define onEntry A as { println("entering A"); Context next }
-      define onEntry B as { println("entering B"); Context next }
-      define onEntry C as { println("entering C"); Context next }
+      define entry A as { println("entering A"); Context next }
+      define entry B as { println("entering B"); Context next }
+      define entry C as { println("entering C"); Context next }
 
-      define onExit A as { println("exiting A") }
-      define onExit B as { println("exiting B") }
-      define onExit C as { println("exiting C") }
+      define exit A as { println("exiting A") }
+      define exit B as { println("exiting B") }
+      define exit C as { println("exiting C") }
 
 
       define from A as { B }
@@ -97,13 +97,13 @@ object Test {
     val s2 = new Statemachine {
       val A, B = State
 
-      define onEntry A as {
+      define entry A as {
         new Statemachine {
           val X, Y = State
           override val START = Some(X)
 
-          define onEntry X as { println("  entering X") }
-          define onEntry Y as { println("  entering Y") }
+          define entry X as { println("  entering X") }
+          define entry Y as { println("  entering Y") }
 
           define from X as { Y }
           define from Y as { STOP }
@@ -123,15 +123,15 @@ object Test {
         val X, Y = State
         override val START = Some(X)
 
-        define onEntry X as { println("  entering X") }
-        define onEntry Y as { println("  entering Y") }
+        define entry X as { println("  entering X") }
+        define entry Y as { println("  entering Y") }
 
         define from X as { Y }
         define from Y as { STOP }
       }
 
-      define onEntry A as { println("entering A") }
-      define onEntry B as { println("entering B") }
+      define entry A as { println("entering A") }
+      define entry B as { println("entering B") }
 
       define from A as { B }
       define from B as { STOP }
