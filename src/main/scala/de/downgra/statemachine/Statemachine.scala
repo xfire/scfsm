@@ -36,7 +36,7 @@ abstract class Statemachine {
 
   def isRunning = running
 
-  def start: Unit = start(START)
+  def start(): Unit = start(START)
   def start(state: Option[Statemachine]): Unit = start(state.getOrElse(STOP))
   def start(state: Statemachine): Unit = {
     // TODO: throw exception

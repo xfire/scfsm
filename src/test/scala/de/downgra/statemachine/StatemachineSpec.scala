@@ -33,31 +33,51 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
       }
     }
 
-    // "it contains three simple transitions with a last StopState" should {
-      // val machine = new Statemachine {
-        // var path = ""
-        // from (A to B        ) { path += "AB" }
-        // from (B to C        ) { path += "BC" }
-        // from (C to StopState) { path += "C;" }
-      // }
+    "it contains three simple transitions with a last StopState" should {
+      val machine = new Statemachine {
+        val A, B, C = State
+        override val START = Some(A)
 
-      // "go through all 3 transitions" in {
-        // machine start A
-        // assert(machine.path === "ABBCC;")
-      // }
-    // }
+        var path = ""
 
-    // "it have a transition with a condition" should {
-      // val machine = new Statemachine {
-        // var x = 0
+        define onEntry A as { path += "eA" }
+        define onExit  A as { path += "xA" }
+        define onEntry B as { path += "eB" }
+        define onExit  B as { path += "xB" }
+        define onEntry C as { path += "eC" }
+        define onExit  C as { path += "xC" }
+        define from A as { B }
+        define from B as { C }
+        define from C as { STOP }
+      }
 
-        // from (A to B) { x += 1 }
-        // from (B to A) {}
+      "go through all 3 transitions" in {
+        machine.start
+        assert(machine.path === "eAxAeBxBeCxC")
+      }
+    }
 
-        // from (A to StopState) {} when(x > 10)
+    "it have a transition with a condition" should {
+      val machine = new Statemachine {
+        val A, B = State
+        override val START = Some(A)
 
-      // }
-    // }
+        var x = 0
+        var y = 0
+
+        define onEntry A as { x += 1 }
+        define onEntry B as { y += 10 }
+
+        define from A as { B }
+        define from B as { if(x >= 10) STOP else A }
+      }
+
+      "should " in {
+        machine.start
+        assert(machine.x === 10)
+        assert(machine.y === 100)
+      }
+    }
 
   }
 }
