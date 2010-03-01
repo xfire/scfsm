@@ -16,22 +16,27 @@ abstract class Statemachine {
   private var exitActions: Map[Statemachine, Function0[Unit]] = Map.empty
   private var conditions: Map[Statemachine, Function0[Statemachine]] = Map.empty
 
-  protected abstract class MappingSetter[T] {
+  protected trait AsSetter[T] {
     def as(fn: => T)
+  }
+
+  protected trait ToStateSetter {
+    def to(toState: Statemachine)
   }
 
   protected val define: this.type = this
 
-  protected def entry(state: Statemachine) = new MappingSetter[Unit] {
+  protected def entry(state: Statemachine) = new AsSetter[Unit] {
     def as(fn: => Unit) = entryActions += (state -> fn _)
   }
 
-  protected def exit(state: Statemachine) = new MappingSetter[Unit] {
+  protected def exit(state: Statemachine) = new AsSetter[Unit] {
     def as(fn: => Unit) = exitActions += (state -> fn _)
   }
 
-  protected def from(state: Statemachine) = new MappingSetter[Statemachine] {
+  protected def from(state: Statemachine) = new AsSetter[Statemachine] with ToStateSetter {
     def as(fn: => Statemachine) = conditions += (state -> fn _)
+    def to(toState: Statemachine) = conditions += (state -> { () => toState })
   }
 
   def isRunning = running
@@ -85,8 +90,8 @@ object Test {
       define exit C as { println("exiting C") }
 
 
-      define from A as { B }
-      define from B as { C }
+      define from A to B
+      define from B to C
       define from C as { if (Context.counter > 10) STOP else A }
     }
 
@@ -105,8 +110,8 @@ object Test {
           define entry X as { println("  entering X") }
           define entry Y as { println("  entering Y") }
 
-          define from X as { Y }
-          define from Y as { STOP }
+          define from X to Y
+          define from Y to STOP
         } start
       }
 
@@ -126,15 +131,15 @@ object Test {
         define entry X as { println("  entering X") }
         define entry Y as { println("  entering Y") }
 
-        define from X as { Y }
-        define from Y as { STOP }
+        define from X to Y
+        define from Y to STOP
       }
 
       define entry A as { println("entering A") }
       define entry B as { println("entering B") }
 
-      define from A as { B }
-      define from B as { STOP }
+      define from A to B
+      define from B to STOP
     }
 
     println(">>> s3")
