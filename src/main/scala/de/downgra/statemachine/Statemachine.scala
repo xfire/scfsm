@@ -16,20 +16,21 @@ abstract class Statemachine {
   private var exitActions: Map[Statemachine, Function0[Unit]] = Map.empty
   private var conditions: Map[Statemachine, Function0[Statemachine]] = Map.empty
 
-  abstract class MappingSetter[T] {
+  protected abstract class MappingSetter[T] {
     def as(fn: => T)
   }
 
-  val define = this
+  protected val define: this.type = this
 
-  def onEntry(state: Statemachine) = new MappingSetter[Unit] {
+  protected def onEntry(state: Statemachine) = new MappingSetter[Unit] {
     def as(fn: => Unit) = entryActions += (state -> fn _)
   }
 
-  def onExit(state: Statemachine) = new MappingSetter[Unit] {
+  protected def onExit(state: Statemachine) = new MappingSetter[Unit] {
     def as(fn: => Unit) = exitActions += (state -> fn _)
   }
-  def from(state: Statemachine) = new MappingSetter[Statemachine] {
+
+  protected def from(state: Statemachine) = new MappingSetter[Statemachine] {
     def as(fn: => Statemachine) = conditions += (state -> fn _)
   }
 
