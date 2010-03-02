@@ -2,11 +2,11 @@ package de.downgra.statemachine
 
 abstract class Statemachine {
 
-  protected val START: Option[Statemachine] = None
   object STOP extends Statemachine {
     override final def onTransition = {}
   }
 
+  private var startingState: Option[Statemachine] = None
   private var running = false
   private var entryActions: Map[Statemachine, Function0[Unit]] = Map.empty
   private var exitActions: Map[Statemachine, Function0[Unit]] = Map.empty
@@ -43,10 +43,14 @@ abstract class Statemachine {
     def to(toState: Statemachine) = conditions += (state -> { () => toState })
   }
 
+  protected def startState() = new {
+    def is(state: Statemachine) = startingState = Option(state)
+  }
+
   // public interface
   def isRunning = running
 
-  def start(): Unit = start(START)
+  def start(): Unit = start(startingState)
   def start(state: Option[Statemachine]): Unit = start(state.getOrElse(STOP))
   def start(state: Statemachine): Unit = {
     // TODO: throw exception

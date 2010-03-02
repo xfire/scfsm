@@ -36,7 +36,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
     "it contains three simple transitions with a last StopState" should {
       val machine = new Statemachine {
         val A, B, C = State
-        override val START = Some(A)
+        startState is A
 
         var path = ""
 
@@ -61,7 +61,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
     "it have a transition with a condition" should {
       val machine = new Statemachine {
         val A, B = State
-        override val START = Some(A)
+        startState is A
 
         var x = 0
         var y = 0
@@ -83,7 +83,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
     "an entry action contains a nested statemachine" should {
       val machine = new Statemachine {
         val A, B = State
-        override val START = Some(A)
+        startState is A
 
         var path = ""
 
@@ -92,7 +92,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
 
           new Statemachine {
             val X, Y = State
-            override val START = Some(X)
+            startState is X
 
             define entry X as { path += "X" }
             define entry Y as { path += "Y" }
@@ -116,7 +116,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
     "a state is a statemachine" should {
       val machine = new Statemachine {
         val A = State
-        override val START = Some(A)
+        startState is A
 
         var path = ""
 
@@ -124,7 +124,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
 
         val B = new Statemachine {
           val X, Y = State
-          override val START = Some(X)
+          startState is X
 
           define entry X as { path += "X" }
           define entry Y as { path += "Y" }
