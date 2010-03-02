@@ -3,42 +3,47 @@ package de.downgra.statemachine
 abstract class Statemachine {
 
   protected val START: Option[Statemachine] = None
-  object STOP extends Statemachine
-
-  protected def State: Statemachine = new Statemachine {
-    override def transition = {}
+  object STOP extends Statemachine {
+    override final def onTransition = {}
   }
 
-  protected def transition: Unit = start
   private var running = false
-
   private var entryActions: Map[Statemachine, Function0[Unit]] = Map.empty
   private var exitActions: Map[Statemachine, Function0[Unit]] = Map.empty
   private var conditions: Map[Statemachine, Function0[Statemachine]] = Map.empty
 
-  protected trait AsSetter[T] {
+  protected def onTransition: Unit = start
+
+  protected def State: Statemachine = new Statemachine {
+    override final def onTransition = {}
+  }
+
+  // some building sugar
+  protected val define: this.type = this
+  protected val transition: this.type = this
+
+  protected trait FunctionSetter[T] {
     def as(fn: => T)
   }
 
-  protected trait ToStateSetter {
+  protected trait StateSetter {
     def to(toState: Statemachine)
   }
 
-  protected val define: this.type = this
-
-  protected def entry(state: Statemachine) = new AsSetter[Unit] {
+  protected def entry(state: Statemachine) = new FunctionSetter[Unit] {
     def as(fn: => Unit) = entryActions += (state -> fn _)
   }
 
-  protected def exit(state: Statemachine) = new AsSetter[Unit] {
+  protected def exit(state: Statemachine) = new FunctionSetter[Unit] {
     def as(fn: => Unit) = exitActions += (state -> fn _)
   }
 
-  protected def from(state: Statemachine) = new AsSetter[Statemachine] with ToStateSetter {
+  protected def from(state: Statemachine) = new FunctionSetter[Statemachine] with StateSetter {
     def as(fn: => Statemachine) = conditions += (state -> fn _)
     def to(toState: Statemachine) = conditions += (state -> { () => toState })
   }
 
+  // public interface
   def isRunning = running
 
   def start(): Unit = start(START)
@@ -49,7 +54,7 @@ abstract class Statemachine {
     var next = state
     running = true
     while(next != STOP) {
-      next.transition
+      next.onTransition
       entryActions.get(next) match {
         case Some(action) => action()
         case None =>

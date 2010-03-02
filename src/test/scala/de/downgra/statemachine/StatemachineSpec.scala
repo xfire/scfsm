@@ -25,7 +25,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
 
     "it contains a transition from STOP to STOP" should {
       val machine = new Statemachine {
-        define from STOP to STOP
+        transition from STOP to STOP
       }
 
       "immediately returns from start" in {
@@ -47,12 +47,12 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
         define entry C as { path += "eC" }
         define exit  C as { path += "xC" }
 
-        define from A to B
-        define from B to C
-        define from C to STOP
+        transition from A to B
+        transition from B to C
+        transition from C to STOP
       }
 
-      "go through all 3 transitions" in {
+      "go through all 3 transitions and terminate" in {
         machine.start()
         assert(machine.path === "eAxAeBxBeCxC")
       }
@@ -69,11 +69,11 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
         define entry A as { x += 1 }
         define entry B as { y += 10 }
 
-        define from A to B
-        define from B as { if(x >= 10) STOP else A }
+        transition from A to B
+        transition from B as { if(x >= 10) STOP else A }
       }
 
-      "should " in {
+      "should corretly pass all states and terminate" in {
         machine.start()
         assert(machine.x === 10)
         assert(machine.y === 100)
