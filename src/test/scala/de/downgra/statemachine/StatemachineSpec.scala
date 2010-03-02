@@ -80,7 +80,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
       }
     }
 
-    "an entry action contains a statemachine" should {
+    "an entry action contains a nested statemachine" should {
       val machine = new Statemachine {
         val A, B = State
         override val START = Some(A)
@@ -93,7 +93,7 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
           new Statemachine {
             val X, Y = State
             override val START = Some(X)
-            
+
             define entry X as { path += "X" }
             define entry Y as { path += "Y" }
 
@@ -110,6 +110,36 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
       "should execute the nested statemachine and terminate" in {
         machine.start()
         assert(machine.path === "AXYB")
+      }
+    }
+
+    "a state is a statemachine" should {
+      val machine = new Statemachine {
+        val A = State
+        override val START = Some(A)
+
+        var path = ""
+
+        define entry A as { path += "A" }
+
+        val B = new Statemachine {
+          val X, Y = State
+          override val START = Some(X)
+
+          define entry X as { path += "X" }
+          define entry Y as { path += "Y" }
+
+          transition from X to Y
+          transition from Y to STOP
+        }
+
+        transition from A to B
+        transition from B to STOP
+      }
+
+      "should execute the nested statemachine and terminate" in {
+        machine.start()
+        assert(machine.path === "AXY")
       }
     }
 
