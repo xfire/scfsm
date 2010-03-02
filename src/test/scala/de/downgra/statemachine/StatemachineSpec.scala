@@ -73,10 +73,43 @@ class StatemachineSpec extends WordSpec with ShouldMatchers {
         transition from B as { if(x >= 10) STOP else A }
       }
 
-      "should corretly pass all states and terminate" in {
+      "should correctly pass all states and terminate" in {
         machine.start()
         assert(machine.x === 10)
         assert(machine.y === 100)
+      }
+    }
+
+    "an entry action contains a statemachine" should {
+      val machine = new Statemachine {
+        val A, B = State
+        override val START = Some(A)
+
+        var path = ""
+
+        define entry A as {
+          path += "A"
+
+          new Statemachine {
+            val X, Y = State
+            override val START = Some(X)
+            
+            define entry X as { path += "X" }
+            define entry Y as { path += "Y" }
+
+            transition from X to Y
+            transition from Y to STOP
+          } start
+        }
+        define entry B as { path += "B" }
+
+        transition from A to B
+        transition from B to STOP
+      }
+
+      "should execute the nested statemachine and terminate" in {
+        machine.start()
+        assert(machine.path === "AXYB")
       }
     }
 
